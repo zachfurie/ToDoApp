@@ -9,6 +9,7 @@ import (
 	"math/rand"
 	"os"
 	"sort"
+	"strconv"
 )
 
 // CONFIG
@@ -222,6 +223,24 @@ func Generate() {
 		fmt.Println("-------------------")
 	}
 	fmt.Println("")
+}
+
+func Generate_String() string {
+	Due_to_urgency()
+	ret := Dp_balance_two_weights(Data)
+	retStr := ""
+	for i, sched := range ret {
+		retStr += "Schedule " + strconv.Itoa(i+1) + "\n"
+		for _, task := range sched.Tasks {
+			retStr += "* " + task.Name + " - " + strconv.Itoa(task.Urgency)
+			if task.Due != 0 {
+				fmt.Print(" - Due in: ", task.Due)
+			}
+			retStr += "\n"
+		}
+		retStr += "-------------------"
+	}
+	return retStr
 }
 
 func Due_to_urgency() {
