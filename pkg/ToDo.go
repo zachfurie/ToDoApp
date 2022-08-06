@@ -12,28 +12,12 @@ import (
 )
 
 // CONFIG
-// var primary_attribute = "Emotion"
+var primary_attribute = "Emotion"
 var primary_attribute_list = []int{1, 0, -1}
 var Max_dur = 5
 var number_of_schedules = 3
-
-//var weights = map[string]int{"++": 2, "+": 1, "-": -1, "--": -2}
-//var need_for_balance = 0
-
-// In the future, should make it so I don't have to manually type out the list of options.
-// This will require changes in the fundamental algorithm, since right now I am choosing an unused
-// attribute and then finding all Tasks with that attribute. What I should do is just find all Tasks
-// with any attribute except the ones already used. Would then need to keep a list of used_groups instead
-// of remaining_groups. Would also need to set used_groups to [] if no results are found in the search, just
-// like how right now I am setting remaining_groups back to its initial list when there are none left.
-
 var Data Schedule
-var DueData Schedule //negative urgency means that is how many days until it is due
-
-//store items with due date separately, and weigh them based on proximity to deadline.
-//OPTION 1 - set their urgency based on due date, so something due very soon would have such a high urgency that it would be almost garunteed to be chosen
-//HOWEVER, this still does not 100% ensure that a task will be added to the schedule before it is due.
-//Option 2 - convert it to usrgency exponentially.
+var DueData Schedule
 
 type Task struct {
 	Name     string `json:"name"`
