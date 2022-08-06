@@ -14,3 +14,5 @@ func main() {
 	ToDo.Generate()
 	ToDo.Generate_to_json(return_filepath)
 }
+
+//SERVER
