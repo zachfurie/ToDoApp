@@ -235,3 +235,13 @@ func Due_to_urgency() {
 	}
 	fmt.Println(len(Data.Tasks))
 }
+
+func Generate_to_json(return_filepath string) {
+	Due_to_urgency()
+	ret := Dp_balance_two_weights(Data)
+	jsonFile, err := os.Open(return_filepath)
+	Error_check(err)
+	defer jsonFile.Close()
+	jsonData, _ := json.Marshal(ret)
+	os.WriteFile(jsonFile.Name(), jsonData, os.ModeDevice)
+}
