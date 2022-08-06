@@ -1,0 +1,10 @@
+emotion and energy are the two main deciding attributes
+duration determines how many tasks can fit in a day
+urgency determines how likely a task is to be chosen
+also include optional due dates that can be put in place of urgency, 
+     and a task with a due date will be more and more likely to be chosen the closer the due date is.
+
+NOTES:
+. I think for now I want to try to do this without having categories (work, reading, creative, etc)
+. Some items you only do once, some items you can do an unlimited number of times, some items need to be 
+	done every so often (so urgency would change based on how recently you last did it).
