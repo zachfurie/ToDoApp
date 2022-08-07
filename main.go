@@ -4,6 +4,7 @@ import (
 	ToDo "ToDoApp/pkg"
 	"fmt"
 	"net/http"
+	"os"
 )
 
 var Data ToDo.Schedule
@@ -15,7 +16,12 @@ var retSched = ToDo.Generation{}
 
 func generateSchedule(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	fmt.Fprint(w, retSched)
+	//retter := json.Encoder{}
+	//retter.Encode(retSched)
+	//str := retter.
+	//retter, err := json.Marshal(retSched)
+	retter, _ := os.ReadFile(return_filepath)
+	fmt.Fprint(w, string(retter))
 }
 
 func main() {
