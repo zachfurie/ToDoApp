@@ -16,7 +16,7 @@ import (
 var primary_attribute = "Emotion"
 var primary_attribute_list = []int{1, 0, -1}
 var Max_dur = 5
-var number_of_schedules = 3
+var number_of_schedules = 4
 var Data Schedule
 var DueData Schedule
 
@@ -31,6 +31,10 @@ type Task struct {
 
 type Schedule struct {
 	Tasks []Task `json:"data"`
+}
+
+type Generation struct {
+	Schedules []Schedule `json:"generation"`
 }
 
 func get_primary_attr(task Task) int {
@@ -143,7 +147,7 @@ func Error_check(err error) {
 	}
 }
 
-func Dp_balance_two_weights(data Schedule) []Schedule {
+func Dp_balance_two_weights(data Schedule) Generation {
 	origin := square{x: 0, y: 0, d: 0}
 	paths := recursive_balance_two_weights(data.Tasks, 0, []*square{&origin}, []*square{})
 	fmt.Println(len(paths))
@@ -172,7 +176,7 @@ func Dp_balance_two_weights(data Schedule) []Schedule {
 		}
 		ret = append(ret, retPath)
 	}
-	return ret
+	return Generation{Schedules: ret}
 }
 
 type square struct {
@@ -210,7 +214,7 @@ func Metadata(sched Schedule) {
 func Generate() {
 	Due_to_urgency()
 	ret := Dp_balance_two_weights(Data)
-	for i, sched := range ret {
+	for i, sched := range ret.Schedules {
 		fmt.Println("")
 		fmt.Println("Schedule ", i+1)
 		for _, task := range sched.Tasks {
@@ -229,7 +233,7 @@ func Generate_String() string {
 	Due_to_urgency()
 	ret := Dp_balance_two_weights(Data)
 	retStr := ""
-	for i, sched := range ret {
+	for i, sched := range ret.Schedules {
 		retStr += "Schedule " + strconv.Itoa(i+1) + "\n"
 		for _, task := range sched.Tasks {
 			retStr += "* " + task.Name + " - " + strconv.Itoa(task.Urgency)
@@ -255,12 +259,14 @@ func Due_to_urgency() {
 	fmt.Println(len(Data.Tasks))
 }
 
-func Generate_to_json(return_filepath string) {
+func Generate_to_json(return_filepath string) Generation {
 	Due_to_urgency()
 	ret := Dp_balance_two_weights(Data)
-	jsonFile, err := os.Open(return_filepath)
-	Error_check(err)
-	defer jsonFile.Close()
+	os.Remove(return_filepath)
+	//jsonFile, err := os.Open(return_filepath)
+	//Error_check(err)
+	//defer jsonFile.Close()
 	jsonData, _ := json.Marshal(ret)
-	os.WriteFile(jsonFile.Name(), jsonData, os.ModeDevice)
+	os.WriteFile(return_filepath, jsonData, 0644)
+	return ret
 }
