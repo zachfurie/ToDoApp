@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"log"
 	"math"
-	"math/rand"
 	"os"
 	"sort"
 	"strconv"
@@ -35,85 +34,6 @@ type Schedule struct {
 
 type Generation struct {
 	Schedules []Schedule `json:"generation"`
-}
-
-func get_primary_attr(task Task) int {
-	return task.Emotion
-}
-
-func Greedy_recursion(schedule Schedule, remaining_groups []int, remaining_dur int) Schedule {
-	if remaining_dur == 0 {
-		return schedule
-	}
-	if len(remaining_groups) == 0 {
-		remaining_groups = primary_attribute_list
-	}
-	group, remaining_groups := weighted_choice_st(remaining_groups)
-	kern := kernel(group, remaining_dur)
-	if len(kern.Tasks) == 0 {
-		return schedule
-	}
-	next_task := weighted_choice(kern)
-	schedule.Tasks = append(schedule.Tasks, next_task)
-	final_schedule := Greedy_recursion(schedule, remaining_groups, remaining_dur-next_task.Duration)
-	return final_schedule
-}
-
-func weighted_choice(list Schedule) Task {
-	choice := rand.Intn(len(list.Tasks))
-	return list.Tasks[choice]
-}
-
-func weighted_choice_st(list []int) (int, []int) {
-	choice := rand.Intn(len(list))
-	ret := list[choice]
-	list[choice] = list[len(list)-1]
-	return ret, list[:len(list)-1]
-}
-
-func find_group(data Schedule, attr int) Schedule {
-	group := Schedule{}
-	for _, task := range data.Tasks {
-		if get_primary_attr(task) == attr {
-			group.Tasks = append(group.Tasks, task)
-		}
-	}
-	return group
-}
-
-func kernel(group int, remaining_dur int) Schedule {
-	search_pool := find_group(Data, group)
-	kernel_size := len(search_pool.Tasks) / 10
-	if kernel_size < 5 {
-		kernel_size = 5
-	}
-	sort.Slice(search_pool.Tasks, func(i, j int) bool {
-		return search_pool.Tasks[i].Duration > search_pool.Tasks[j].Duration
-	})
-	for i := range search_pool.Tasks {
-		if search_pool.Tasks[i].Duration <= remaining_dur {
-			retind := i + kernel_size
-			if len(search_pool.Tasks) < retind {
-				retind = len(search_pool.Tasks)
-			}
-			return Schedule{Tasks: search_pool.Tasks[i:retind]}
-		}
-	}
-	return Schedule{}
-}
-
-func Build(data Schedule) []Schedule {
-	Data = data
-	max_dur := Max_dur
-	final_schedules := []Schedule{}
-	for i := 0; i < number_of_schedules; i++ {
-		schedule := Schedule{}
-		remaining_groups := make([]int, len(primary_attribute_list))
-		copy(remaining_groups, primary_attribute_list)
-		final_schedule := Greedy_recursion(schedule, remaining_groups, max_dur)
-		final_schedules = append(final_schedules, final_schedule)
-	}
-	return final_schedules
 }
 
 func UpdateData(filepath string, duefilepath string) {
