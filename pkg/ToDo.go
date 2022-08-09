@@ -117,12 +117,20 @@ func Build(data Schedule) []Schedule {
 }
 
 func UpdateData(filepath string, duefilepath string) {
+	_, err := os.Stat(filepath)
+	if err != nil {
+		os.WriteFile(filepath, []byte{}, 0644)
+	}
 	jsonFile, err := os.Open(filepath)
 	Error_check(err)
 	defer jsonFile.Close()
 	byteValue, _ := ioutil.ReadAll(jsonFile)
 	err = json.Unmarshal(byteValue, &Data)
 	Error_check(err)
+	_, err = os.Stat(duefilepath)
+	if err != nil {
+		os.WriteFile(duefilepath, []byte{}, 0644)
+	}
 	jsonDueFile, err := os.Open(duefilepath)
 	Error_check(err)
 	defer jsonDueFile.Close()
@@ -154,7 +162,7 @@ func Dp_balance_two_weights(data Schedule) Generation {
 	sort.Slice(paths, func(i, j int) bool {
 		return math.Abs(float64(paths[i].x))+math.Abs(float64(paths[i].y)) < math.Abs(float64(paths[j].x))+math.Abs(float64(paths[j].y))
 	})
-	chosenPaths := paths[:number_of_schedules*10]
+	chosenPaths := paths[:int(math.Min(float64(number_of_schedules*10), float64(len(paths))))]
 	// rand.Shuffle(number_of_schedules*10, func(i, j int) {
 	// 	chosenPaths[i], chosenPaths[j] = chosenPaths[j], chosenPaths[i]
 	// })

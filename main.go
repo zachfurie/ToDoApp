@@ -16,18 +16,25 @@ var retSched = ToDo.Generation{}
 
 func generateSchedule(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	//retter := json.Encoder{}
-	//retter.Encode(retSched)
-	//str := retter.
-	//retter, err := json.Marshal(retSched)
-	retter, _ := os.ReadFile(return_filepath)
+	req.ParseMultipartForm(10000000000)
+	form := req.MultipartForm
+	user := req.FormValue("user")
+	fmt.Println("form ", *form)
+	fmt.Println("user ", user)
+	return_filepath_username := user + return_filepath
+	fmt.Println(return_filepath_username)
+	ToDo.UpdateData(user+filepath, user+duefilepath)
+	//ToDo.UpdateData(filepath, duefilepath)
+	retSched = ToDo.Generate_to_json(return_filepath_username) //(return_filepath_username)
+	retter, _ := os.ReadFile(return_filepath_username)         //(return_filepath) //
+	fmt.Println(retter)
 	fmt.Fprint(w, string(retter))
 }
 
 func main() {
-	ToDo.UpdateData(filepath, duefilepath)
+	//ToDo.UpdateData(filepath, duefilepath)
 	//ToDo.Generate()
-	retSched = ToDo.Generate_to_json(return_filepath)
+	//retSched = ToDo.Generate_to_json(return_filepath)
 	http.HandleFunc("/generateSchedule", generateSchedule)
 	http.ListenAndServe(":8090", nil)
 }
