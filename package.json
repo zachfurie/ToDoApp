@@ -1,0 +1,9 @@
+{
+  "name": "ToDoApp",
+  "lockfileVersion": 2,
+  "requires": true,
+  "packages": {},
+  "dependencies": {
+    "@ptomasroos/react-native-multi-slider": "^2.2.2"
+  }
+}
