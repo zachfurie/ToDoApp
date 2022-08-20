@@ -6,14 +6,11 @@ import (
 	"io/ioutil"
 	"log"
 	"math"
-	"math/rand"
 	"os"
 	"sort"
 )
 
 // CONFIG
-var primary_attribute = "Emotion"
-var primary_attribute_list = []int{1, 0, -1}
 var Max_dur = 5
 var number_of_schedules = 3
 var Data Schedule
@@ -32,85 +29,6 @@ type Schedule struct {
 	Tasks []Task `json:"data"`
 }
 
-func get_primary_attr(task Task) int {
-	return task.Emotion
-}
-
-func Greedy_recursion(schedule Schedule, remaining_groups []int, remaining_dur int) Schedule {
-	if remaining_dur == 0 {
-		return schedule
-	}
-	if len(remaining_groups) == 0 {
-		remaining_groups = primary_attribute_list
-	}
-	group, remaining_groups := weighted_choice_st(remaining_groups)
-	kern := kernel(group, remaining_dur)
-	if len(kern.Tasks) == 0 {
-		return schedule
-	}
-	next_task := weighted_choice(kern)
-	schedule.Tasks = append(schedule.Tasks, next_task)
-	final_schedule := Greedy_recursion(schedule, remaining_groups, remaining_dur-next_task.Duration)
-	return final_schedule
-}
-
-func weighted_choice(list Schedule) Task {
-	choice := rand.Intn(len(list.Tasks))
-	return list.Tasks[choice]
-}
-
-func weighted_choice_st(list []int) (int, []int) {
-	choice := rand.Intn(len(list))
-	ret := list[choice]
-	list[choice] = list[len(list)-1]
-	return ret, list[:len(list)-1]
-}
-
-func find_group(data Schedule, attr int) Schedule {
-	group := Schedule{}
-	for _, task := range data.Tasks {
-		if get_primary_attr(task) == attr {
-			group.Tasks = append(group.Tasks, task)
-		}
-	}
-	return group
-}
-
-func kernel(group int, remaining_dur int) Schedule {
-	search_pool := find_group(Data, group)
-	kernel_size := len(search_pool.Tasks) / 10
-	if kernel_size < 5 {
-		kernel_size = 5
-	}
-	sort.Slice(search_pool.Tasks, func(i, j int) bool {
-		return search_pool.Tasks[i].Duration > search_pool.Tasks[j].Duration
-	})
-	for i := range search_pool.Tasks {
-		if search_pool.Tasks[i].Duration <= remaining_dur {
-			retind := i + kernel_size
-			if len(search_pool.Tasks) < retind {
-				retind = len(search_pool.Tasks)
-			}
-			return Schedule{Tasks: search_pool.Tasks[i:retind]}
-		}
-	}
-	return Schedule{}
-}
-
-func Build(data Schedule) []Schedule {
-	Data = data
-	max_dur := Max_dur
-	final_schedules := []Schedule{}
-	for i := 0; i < number_of_schedules; i++ {
-		schedule := Schedule{}
-		remaining_groups := make([]int, len(primary_attribute_list))
-		copy(remaining_groups, primary_attribute_list)
-		final_schedule := Greedy_recursion(schedule, remaining_groups, max_dur)
-		final_schedules = append(final_schedules, final_schedule)
-	}
-	return final_schedules
-}
-
 func UpdateData(filepath string, duefilepath string) {
 	jsonFile, err := os.Open(filepath)
 	Error_check(err)
@@ -118,12 +36,12 @@ func UpdateData(filepath string, duefilepath string) {
 	byteValue, _ := ioutil.ReadAll(jsonFile)
 	err = json.Unmarshal(byteValue, &Data)
 	Error_check(err)
-	jsonDueFile, err := os.Open(duefilepath)
-	Error_check(err)
-	defer jsonDueFile.Close()
-	byteValue, _ = ioutil.ReadAll(jsonDueFile)
-	err = json.Unmarshal(byteValue, &DueData)
-	Error_check(err)
+	// jsonDueFile, err := os.Open(duefilepath)
+	// Error_check(err)
+	// defer jsonDueFile.Close()
+	// byteValue, _ = ioutil.ReadAll(jsonDueFile)
+	// err = json.Unmarshal(byteValue, &DueData)
+	// Error_check(err)
 }
 
 func AddTask(filepath string, task Task) {
@@ -134,6 +52,39 @@ func AddTask(filepath string, task Task) {
 	jsonData, _ := json.Marshal(Data)
 	os.WriteFile(jsonFile.Name(), jsonData, os.ModeDevice)
 	//return UpdateData(filepath, duefilepath)
+}
+
+func AddTask_via_json(filepath string, newTaskFilepath string) {
+	newTaskFile, err := os.Open(newTaskFilepath)
+	Error_check(err)
+	defer newTaskFile.Close()
+	jsonFile, err := os.Open(filepath)
+	Error_check(err)
+	defer jsonFile.Close()
+	byteValue, _ := ioutil.ReadAll(newTaskFile)
+	task := Task{}
+	json.Unmarshal(byteValue, &task)
+	Data.Tasks = append(Data.Tasks, task)
+	jsonData, _ := json.Marshal(Data)
+	os.WriteFile(jsonFile.Name(), jsonData, os.ModeDevice)
+	//return UpdateData(filepath, duefilepath)
+}
+
+func DeleteTask(filepath string, taskname string) {
+	jsonFile, err := os.Open(filepath)
+	Error_check(err)
+	defer jsonFile.Close()
+	for i, x := range Data.Tasks {
+		if x.Name == taskname {
+			h1 := Data.Tasks[:i]
+			h2 := Data.Tasks[i+1:]
+			h1 = append(h1, h2...)
+			Data.Tasks = h1
+			break
+		}
+	}
+	jsonData, _ := json.Marshal(Data)
+	os.WriteFile(jsonFile.Name(), jsonData, os.ModeDevice)
 }
 
 func Error_check(err error) {
@@ -202,12 +153,8 @@ func recursive_balance_two_weights(data []Task, i int, in []*square, out []*squa
 	return recursive_balance_two_weights(data, i+1, pass, out)
 }
 
-func Metadata(sched Schedule) {
-
-}
-
 func Generate() {
-	Due_to_urgency()
+	//Due_to_urgency()
 	ret := Dp_balance_two_weights(Data)
 	for i, sched := range ret {
 		fmt.Println("")
@@ -237,7 +184,7 @@ func Due_to_urgency() {
 }
 
 func Generate_to_json(return_filepath string) {
-	Due_to_urgency()
+	//Due_to_urgency()
 	ret := Dp_balance_two_weights(Data)
 	jsonFile, err := os.Open(return_filepath)
 	Error_check(err)
