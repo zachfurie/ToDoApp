@@ -40,12 +40,18 @@ func UpdateData(filepath string, duefilepath string) {
 	_, err := os.Stat(filepath)
 	if err != nil {
 		os.WriteFile(filepath, []byte{}, 0644)
+		return
 	}
 	jsonFile, err := os.Open(filepath)
 	Error_check(err)
 	defer jsonFile.Close()
 	byteValue, _ := ioutil.ReadAll(jsonFile)
+	if len(byteValue) == 0 {
+		return
+	}
+	//
 	err = json.Unmarshal(byteValue, &Data)
+	//
 	Error_check(err)
 	_, err = os.Stat(duefilepath)
 	if err != nil {
@@ -60,6 +66,7 @@ func UpdateData(filepath string, duefilepath string) {
 }
 
 func AddTask(filepath string, task Task) {
+	UpdateData(filepath, filepath)
 	jsonFile, err := os.Open(filepath)
 	Error_check(err)
 	defer jsonFile.Close()

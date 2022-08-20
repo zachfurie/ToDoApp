@@ -5,11 +5,11 @@ import {Button} from 'react';
 //http://localhost:3000/
 
 var usernameText = 'FAIL'
-var newName = ''
-var newEmotion = ''
-var newEnergy = ''
-var newUrgency = ''
-var newDuration = ''
+var newName = '0'
+var newEmotion = '0'
+var newEnergy = '0'
+var newUrgency = '0'
+var newDuration = '0'
 
 
 function getData() {
@@ -55,8 +55,6 @@ function handleChangeSubmit()  {
 }
 
 function addTaskButton() {
-  console.log('adder')
-  
   document.write(
   "<div className=\"App\">"+
   "<header className=\"App-header\">" + 
@@ -69,6 +67,7 @@ function addTaskButton() {
   "</header>" +
   "</div>"
     )
+    
   // <div className="App">
   // <header className="App-header">
   //   <input placeholder="Task Name" id='username' name='username' type='input' className='formal2' onBlur={function(){newName=this.value}}></input>
@@ -81,13 +80,14 @@ function addTaskButton() {
   // </div>
 }
 
+
 function newSubmit() {
   var newTask = "{name:" + newName + ",emotion:" + newEmotion + ",energy:" + newEnergy + ",urgency:" + newUrgency + ",duration:" + newDuration + "}"
   var xhr = new XMLHttpRequest()
   xhr.addEventListener('load', () => {
     document.getElementById('success').innerHTML = "Task Submitted!"
   })
-  var requestUrl = 'http://192.168.87.243:8090/generateSchedule' //+ usernameText
+  var requestUrl = 'http://localhost:8090/generateSchedule' //+ usernameText
   xhr.open('POST', requestUrl)
   let formData = new FormData() // creates an object, optionally fill from <form>
   formData.append("user", usernameText)
@@ -105,7 +105,6 @@ const App = () => {
       usernameText = message
       console.log(message)
     }, 0);
-    
   }
 
   return (
